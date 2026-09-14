@@ -2,38 +2,30 @@
 
 from entities.interest import check_interest
 
+    
+def create_recommendation(user_name, user_interest, route_name, route_interest):
+    """Формирование рекомендации маршрута для пользователя.
 
-def create_recommendation(user, route):
-    """Формирование рекомендации маршрута для пользователя."""
-    if user is None or route is None:
-        return None, "Ошибка: пользователь или маршрут не заданы"
+    Возвращает кортеж (route_name_out, score, text, message) из простых
+    типов, без использования коллекций.
+    """
+    if user_name is None or route_name is None:
+        return None, None, None, "Ошибка: пользователь или маршрут не заданы"
 
-    if check_interest(user["interest"], route["interest"]):
+    if check_interest(user_interest, route_interest):
         score = 1.0
-        text = (
-            f"Рекомендуем маршрут «{route['name']}» "
-            f"для пользователя {user['name']}."
-        )
+        text = f"Рекомендуем маршрут «{route_name}» для пользователя {user_name}."
     else:
         score = 0.0
-        text = (
-            f"Маршрут «{route['name']}» не соответствует "
-            f"интересу «{user['interest']}»."
-        )
+        text = f"Маршрут «{route_name}» не соответствует интересу «{user_interest}»."
 
-    recommendation = {
-        "user": user["name"],
-        "route": route["name"],
-        "score": score,
-        "text": text,
-    }
-    return recommendation, "Рекомендация сформирована"
+    return route_name, score, text, "Рекомендация сформирована"
 
 
-def print_recommendation(recommendation):
+def print_recommendation(route_name, score, text):
     """Вывод рекомендации."""
-    if recommendation is None:
+    if route_name is None:
         print("Рекомендация не сформирована.")
         return
-    print(recommendation["text"])
-    print(f"Коэффициент соответствия: {recommendation['score']}")
+    print(text)
+    print(f"Коэффициент соответствия: {score}")

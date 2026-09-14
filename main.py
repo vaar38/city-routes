@@ -18,21 +18,27 @@ def main():
     print()
 
     # 1. Пользователь
-    user, msg = create_user("Артур", "Москва", "архитектура")
+    user_name, user_city, user_interest, msg = create_user(
+        "Артур", "Москва", "архитектура"
+    )
     print(msg)
-    print_user(user)
+    print_user(user_name, user_city, user_interest)
     print()
 
     # 2. Маршрут
-    route, msg = create_route("Исторический центр", "архитектура", 4.5, 6)
+    route_name, route_interest, route_length, route_points, msg = create_route(
+        "Исторический центр", "архитектура", 4.5, 6
+    )
     print(msg)
-    print_route(route)
+    print_route(route_name, route_interest, route_length, route_points)
     print()
 
     # 3. Рекомендация
-    recommendation, msg = create_recommendation(user, route)
+    rec_route, rec_score, rec_text, msg = create_recommendation(
+        user_name, user_interest, route_name, route_interest
+    )
     print(msg)
-    print_recommendation(recommendation)
+    print_recommendation(rec_route, rec_score, rec_text)
 
 
 if __name__ == "__main__":

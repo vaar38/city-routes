@@ -2,27 +2,27 @@
 
 
 def create_user(name, city, interest):
-    """Создание пользователя и проверка корректности данных."""
+    """Создание пользователя и проверка корректности данных.
+
+    Возвращает кортеж (name, city, interest, message) из простых типов,
+    без использования коллекций (dict/list), т.к. на ПР1 работа
+    со сложными структурами данных ещё не изучалась.
+    """
     if not name:
-        return None, "Ошибка: имя пользователя не указано"
+        return None, None, None, "Ошибка: имя пользователя не указано"
     if not city:
-        return None, "Ошибка: город не указан"
+        return None, None, None, "Ошибка: город не указан"
     if not interest:
-        return None, "Ошибка: интерес не указан"
+        return None, None, None, "Ошибка: интерес не указан"
 
-    user = {
-        "name": name,
-        "city": city,
-        "interest": interest,
-    }
-    return user, "Пользователь успешно создан"
+    return name, city, interest, "Пользователь успешно создан"
 
 
-def print_user(user):
+def print_user(name, city, interest):
     """Вывод информации о пользователе."""
-    if user is None:
+    if name is None:
         print("Пользователь не создан.")
         return
-    print(f"Пользователь: {user['name']}")
-    print(f"Город: {user['city']}")
-    print(f"Интерес: {user['interest']}")
+    print(f"Пользователь: {name}")
+    print(f"Город: {city}")
+    print(f"Интерес: {interest}")
