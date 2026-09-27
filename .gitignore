@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Виртуальное окружение
+venv/
+.venv/
+env/
+
+# Переменные окружения и секреты
+.env
+
+# Локальная база данных
+*.db
+*.sqlite3
+
+# IDE и ОС
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
