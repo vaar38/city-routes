@@ -9,11 +9,11 @@
         <div class="card route-card">
             <div class="card-body">
                 <h1 class="card-title">Рекомендация №{{ rec.id }}</h1>
-                <p class="card-text"><strong>Пользователь:</strong> {{ rec.user.name }} ({{ rec.user.email }})</p>
+                <p class="card-text"><strong>Пользователь:</strong> {{ rec.user_name }} ({{ rec.email }})</p>
                 <p class="card-text">
                     <strong>Маршрут:</strong>
-                    <a href="{% url 'routes:detail' rec.route.id %}">{{ rec.route.name }}</a>,
-                    {{ rec.route.length_km|floatformat:1 }} км
+                    <a href="{% url 'routes:detail' rec.route_id %}">{{ rec.route_name }}</a>,
+                    {{ rec.interest }}, {{ rec.length_km|floatformat:1 }} км
                 </p>
                 <p class="card-text"><strong>Релевантность:</strong> {{ rec.score|floatformat:2 }}</p>
                 <p class="card-text">

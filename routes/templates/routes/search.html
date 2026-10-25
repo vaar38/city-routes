@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск маршрута – City Routes{% endblock %}
+
+{% block content %}
+    <h1>Поиск маршрута</h1>
+
+    <form method="get" class="search-form row g-2 align-items-end">
+        <div class="col-auto">
+            <label for="interest" class="form-label">Тематика</label>
+            <select id="interest" name="interest" class="form-select">
+                <option value="">любая</option>
+                {% for item in interests %}
+                    <option value="{{ item.name }}" {% if item.name == interest %}selected{% endif %}>
+                        {{ item.name|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <label for="max_km" class="form-label">Не длиннее, км</label>
+            <input type="text" id="max_km" name="max_km" value="{{ max_km }}"
+                   class="form-control" placeholder="например, 5">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </div>
+    </form>
+
+    {% if error %}
+        <p class="text-danger mt-3">{{ error }}</p>
+    {% elif submitted %}
+        <h2 class="h4 mt-4">Найдено: {{ routes|length }}</h2>
+        {% for route in routes %}
+            {% include "routes/includes/route_card.html" %}
+        {% empty %}
+            <p>Подходящих маршрутов нет.</p>
+        {% endfor %}
+    {% endif %}
+
+    <a href="{% url 'routes:list' %}" class="btn btn-outline-secondary mt-3">← ко всем маршрутам</a>
+{% endblock %}

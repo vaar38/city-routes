@@ -4,7 +4,10 @@
 
 {% block content %}
     <h1>Маршруты</h1>
-    <p>Всего маршрутов: {{ routes|length }}</p>
+    <p>
+        Всего маршрутов: {{ routes|length }} ·
+        <a href="{% url 'routes:search' %}">Найти маршрут по тематике и длине</a>
+    </p>
 
     {% for route in routes %}
         {% include "routes/includes/route_card.html" %}

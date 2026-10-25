@@ -5,7 +5,13 @@
 {% block content %}
     <h1 class="display-4">City Routes</h1>
     <p class="lead">Система рекомендаций городских маршрутов.</p>
+    <p class="stats-line">
+        Маршрутов в базе: <strong>{{ routes_count }}</strong> ·
+        активных рекомендаций: <strong>{{ active_count }}</strong>
+    </p>
     <p>Основные разделы:</p>
     <a href="{% url 'routes:list' %}" class="btn btn-primary me-2">Маршруты</a>
-    <a href="{% url 'recommendations:list' %}" class="btn btn-secondary">Рекомендации</a>
+    <a href="{% url 'routes:search' %}" class="btn btn-outline-primary me-2">Поиск маршрута</a>
+    <a href="{% url 'recommendations:list' %}" class="btn btn-secondary me-2">Рекомендации</a>
+    <a href="{% url 'recommendations:statistics' %}" class="btn btn-outline-secondary">Статистика</a>
 {% endblock %}

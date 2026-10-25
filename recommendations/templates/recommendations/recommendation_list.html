@@ -3,19 +3,22 @@
 {% block title %}Рекомендации – City Routes{% endblock %}
 
 {% block content %}
-    <h1>Рекомендации</h1>
-    <p>Всего рекомендаций: {{ recommendations|length }}</p>
+    <h1>Активные рекомендации</h1>
+    <p>Всего: {{ recommendations|length }}</p>
 
     <ul class="list-group">
         {% for rec in recommendations %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="{% url 'recommendations:detail' rec.id %}">
-                    {{ rec.user.name }} → {{ rec.route.name }}
-                </a>
-                {% include "recommendations/includes/recommendation_status.html" %}
+                <span>
+                    <a href="{% url 'recommendations:detail' rec.id %}">№{{ rec.id }}</a>
+                    {{ rec.user_name }} →
+                    <a href="{% url 'routes:detail' rec.route_id %}">{{ rec.route_name }}</a>
+                    ({{ rec.length_km|floatformat:1 }} км)
+                </span>
+                <span class="badge bg-success rec-status">{{ rec.score|floatformat:2 }}</span>
             </li>
         {% empty %}
-            <li class="list-group-item">Рекомендаций нет.</li>
+            <li class="list-group-item">Активных рекомендаций нет.</li>
         {% endfor %}
     </ul>
 {% endblock %}

@@ -55,3 +55,31 @@ main.container {
     padding: 1rem 0;
     color: #6c757d;
 }
+
+.stats-line {
+    color: var(--route-accent);
+}
+
+.search-form {
+    margin-bottom: 1rem;
+}
+
+.stat-tile {
+    height: 100%;
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--route-accent-soft);
+    color: #495057;
+    font-size: 0.875rem;
+}
+
+.stat-tile span {
+    display: block;
+    color: var(--route-accent);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.stats-table {
+    max-width: 640px;
+}

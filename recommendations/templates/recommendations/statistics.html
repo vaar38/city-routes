@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика – City Routes{% endblock %}
+
+{% block content %}
+    <h1>Статистика</h1>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="stat-tile"><span>{{ summary.routes_count }}</span>маршрутов</div></div>
+        <div class="col-6 col-md-3"><div class="stat-tile"><span>{{ active_count }}</span>активных рекомендаций</div></div>
+        <div class="col-6 col-md-3"><div class="stat-tile"><span>{{ summary.avg_length }} км</span>средняя длина ({{ summary.min_length }}–{{ summary.max_length }})</div></div>
+        <div class="col-6 col-md-3"><div class="stat-tile"><span>{{ summary.points_total }}</span>точек во всех маршрутах</div></div>
+    </div>
+
+    <h2 class="h4">Рекомендации по маршрутам</h2>
+    <table class="table table-sm stats-table">
+        <thead><tr><th>Маршрут</th><th>Активных</th><th>Средняя релевантность</th></tr></thead>
+        <tbody>
+            {% for item in by_route %}
+                <tr>
+                    <td><a href="{% url 'routes:detail' item.id %}">{{ item.route_name }}</a></td>
+                    <td>{{ item.recs_count }}</td>
+                    <td>{{ item.avg_score|default:"—" }}</td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3">Данные отсутствуют.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="h4">Маршруты по тематикам</h2>
+    <table class="table table-sm stats-table">
+        <thead><tr><th>Тематика</th><th>Маршрутов</th><th>Средняя длина, км</th></tr></thead>
+        <tbody>
+            {% for item in by_interest %}
+                <tr><td>{{ item.interest|capfirst }}</td><td>{{ item.routes_count }}</td><td>{{ item.avg_length|default:"—" }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="h4">Рекомендации по пользователям</h2>
+    <table class="table table-sm stats-table">
+        <thead><tr><th>Пользователь</th><th>Всего</th><th>Отклонено</th></tr></thead>
+        <tbody>
+            {% for item in by_user %}
+                <tr><td>{{ item.user_name }}</td><td>{{ item.total }}</td><td>{{ item.dismissed|default:0 }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="h4">Топ-3 маршрута</h2>
+    <ol>
+        {% for item in top %}
+            <li>{{ item.route_name }} — {{ item.recs_count }}</li>
+        {% empty %}
+            <li>Данные отсутствуют.</li>
+        {% endfor %}
+    </ol>
+
+    <h2 class="h4">Популярные маршруты</h2>
+    <form method="get" class="search-form row g-2 align-items-end mb-2">
+        <div class="col-auto">
+            <label for="min" class="form-label">Активных рекомендаций больше, чем</label>
+            <input type="number" min="0" id="min" name="min" value="{{ min_count }}" class="form-control">
+        </div>
+        <div class="col-auto"><button type="submit" class="btn btn-primary">Показать</button></div>
+    </form>
+    <ul class="list-group">
+        {% for item in popular %}
+            <li class="list-group-item">{{ item.route_name }} — {{ item.recs_count }}</li>
+        {% empty %}
+            <li class="list-group-item">Нет маршрутов с числом рекомендаций больше {{ min_count }}.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

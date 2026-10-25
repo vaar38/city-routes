@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Подбор маршрутов – City Routes{% endblock %}
+
+{% block content %}
+    <h1>Подбор маршрутов</h1>
+    <p>Маршруты по интересу пользователя, которые ему ещё не рекомендованы.</p>
+
+    <form method="get" class="search-form row g-2 align-items-end">
+        <div class="col-auto">
+            <label for="user" class="form-label">Пользователь</label>
+            <select id="user" name="user" class="form-select">
+                {% for item in users %}
+                    <option value="{{ item.id }}" {% if item.id|stringformat:"d" == selected %}selected{% endif %}>
+                        {{ item.name }} ({{ item.email }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Подобрать</button>
+        </div>
+    </form>
+
+    {% if user %}
+        <h2 class="h4 mt-4">{{ user.name }}: интерес «{{ user.interest }}»</h2>
+        {% for route in routes %}
+            <article class="card route-card mb-2">
+                <div class="card-body">
+                    <a href="{% url 'routes:detail' route.id %}">{{ route.name }}</a>,
+                    {{ route.length_km|floatformat:1 }} км
+                </div>
+            </article>
+        {% empty %}
+            <p>Новых маршрутов по этому интересу нет — всё уже рекомендовано.</p>
+        {% endfor %}
+    {% elif selected %}
+        <p class="text-danger mt-3">Пользователь не найден.</p>
+    {% endif %}
+{% endblock %}

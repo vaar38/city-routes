@@ -67,7 +67,7 @@
 
 ## ⚙️ Основные функции
 
-Отметка ✅ — функция уже реализована в консольной версии (`main.py`).
+Отметка ✅ — функция уже реализована (консольная версия `main.py` и/или веб-интерфейс на Django).
 
 *   **Регистрация и авторизация пользователя.**
 *   ✅ **Управление профилем** — добавление пользователя, указание и изменение интереса.
@@ -91,6 +91,22 @@
 | ПР4 | Контрольная работа № 1 (проект не изменяется) | — |
 | ПР5 | Django: проект, приложения, HTTP, URL, view-функции, Bootstrap | [docs/pr5/README.md](docs/pr5/README.md) |
 | ПР6 | Шаблоны Django, наследование, include, url, фильтры, static | [docs/pr6/README.md](docs/pr6/README.md) |
+| ПР7 | Базы данных и SQL: SQLite, схема, импорт из JSON, запросы в Django | [docs/pr7/README.md](docs/pr7/README.md) |
+
+---
+
+## 🧭 Текущий этап разработки
+
+На ПР7 данные City Routes перенесены из JSON в базу данных SQLite:
+
+- создана база данных `data/city_routes.sqlite`;
+- таблицы созданы скриптом `sql/schema.sql`;
+- данные перенесены из JSON скриптом `db/import_json.py`;
+- 17 SQL-запросов сохранены в `sql/queries.sql`;
+- Django-представления получают данные из SQLite через `sqlite3`;
+- страницы маршрутов, поиска, рекомендаций, подбора и статистики работают с базой данных.
+
+JSON-хранилище ПР2–ПР3 и консольная версия `main.py` сохранены как предыдущая реализация. На следующих практических работах база данных будет подключена к Django через Django ORM.
 
 ---
 
@@ -108,24 +124,25 @@ city-routes/
 │   ├── base.html          — общий каркас: блоки title/content, CSS, JS, подвал
 │   └── includes/navigation.html
 ├── homepage/              — главная, страница 404, static/homepage/{css,js,img}
-├── routes/                — /routes/, /routes/<id>/; templates/routes/ (+ includes/route_card.html)
-├── recommendations/       — /recommendations/, /recommendations/<id>/;
-│                            templates/recommendations/ (+ includes/recommendation_status.html)
-├── models/                — объектная модель (ПР3)
-│   ├── __init__.py        — экспорт классов Route, User, Recommendation
-│   ├── routes.py          — класс Route и функции работы с маршрутами
-│   ├── users.py           — класс User и функции работы с пользователями
-│   └── recommendations.py — класс Recommendation, подбор и рекомендации
-├── storage.py             — JSON ↔ объекты (загрузка и сохранение)
+├── routes/                — маршруты: список, поиск, карточка (+ шаблоны)
+├── recommendations/       — рекомендации, подбор, статистика (+ шаблоны)
+├── sql/
+│   ├── schema.sql         — CREATE TABLE: ключи и ограничения
+│   └── queries.sql        — SQL-запросы проекта с комментариями
+├── db/
+│   ├── __init__.py
+│   ├── database.py        — get_connection() (PRAGMA foreign_keys), fetch_all/fetch_one
+│   └── import_json.py     — перенос JSON → SQLite (executemany, commit/rollback)
+├── models/                — объектная модель (ПР3): Route, User, Recommendation
+├── storage.py             — JSON ↔ объекты (консольная версия)
 ├── utils.py               — безопасный ввод чисел и строк
 ├── data/
-│   ├── routes.json
-│   ├── users.json
-│   └── recommendations.json
-└── tests/                 — автотесты pytest
+│   ├── routes.json, users.json, recommendations.json — исходные данные
+│   └── city_routes.sqlite — база данных SQLite (ПР7)
+└── tests/                 — автотесты pytest (модель, JSON, SQLite, страницы)
 ```
 
-### Объектная модель
+### Объектная модель (ПР3)
 
 | Класс | Атрибуты | Методы |
 |---|---|---|
@@ -133,43 +150,67 @@ city-routes/
 | `User` | `id`, `name`, `email`, `interest` | `change_interest()`, `from_data()` (`@classmethod`), `__str__()` |
 | `Recommendation` | `id`, `route: Route`, `user: User`, `score`, `is_dismissed` | `dismiss()`, `is_active` (`@property`), `__str__()` |
 
-`Recommendation` хранит ссылки на объекты `Route` и `User` (композиция), поэтому имя пользователя и название маршрута доступны как `rec.user.name`, `rec.route.name`. В JSON вместо объектов записываются `route_id` и `user_id`; связи восстанавливает `storage.load_recommendations()`.
+`Recommendation` хранит ссылки на объекты `Route` и `User` (композиция). В JSON вместо объектов записываются `route_id` и `user_id`; связи восстанавливает `storage.load_recommendations()`.
 
-### Формат данных
+Правило: у пользователя не может быть двух **активных** рекомендаций одного маршрута; отклонённая рекомендация остаётся, но не мешает создать новую.
 
-```json
-// data/routes.json
-{"id": 1, "name": "Исторический центр", "interest": "архитектура", "length_km": 4.5, "points_count": 6}
-// data/users.json
-{"id": 1, "name": "Артур", "email": "artur@example.com", "interest": "архитектура"}
-// data/recommendations.json
-{"id": 1, "route_id": 1, "user_id": 1, "score": 1.0, "is_dismissed": false}
+---
+
+## 🗄️ База данных (ПР7)
+
+```text
+interests 1 ──< users            users.interest_id   → interests.id
+interests 1 ──< routes           routes.interest_id  → interests.id
+routes    1 ──< recommendations  recommendations.route_id → routes.id
+users     1 ──< recommendations  recommendations.user_id  → users.id
 ```
 
-Правило: у пользователя не может быть двух **активных** рекомендаций одного маршрута; отклонённая рекомендация остаётся в файле, но не мешает создать новую.
+| Таблица | Поля (тип) | Ключи и ограничения |
+|---|---|---|
+| `interests` | `id` INTEGER, `name` TEXT | PK `id`; `name` NOT NULL UNIQUE |
+| `users` | `id` INTEGER, `name` TEXT, `email` TEXT, `interest_id` INTEGER | PK `id`; FK `interest_id`; `email` UNIQUE |
+| `routes` | `id` INTEGER, `name` TEXT, `interest_id` INTEGER, `length_km` REAL, `points_count` INTEGER, `description` TEXT | PK `id`; FK `interest_id`; CHECK `length_km > 0`, `points_count >= 2`; `description` может быть NULL |
+| `recommendations` | `id` INTEGER, `route_id` INTEGER, `user_id` INTEGER, `score` REAL, `is_dismissed` INTEGER | PK `id`; FK `route_id`, `user_id`; `is_dismissed` 0/1, DEFAULT 0 |
+
+В JSON интерес хранился строкой, в базе он вынесен в таблицу `interests`, а маршрут и пользователь ссылаются на неё по `interest_id` — так интересы не дублируются и маршрут с пользователем соединяются через JOIN.
+
+**Создание и заполнение базы** (из корня проекта):
+
+```text
+python -m db.import_json
+```
+
+Скрипт выполняет `sql/schema.sql` (`CREATE TABLE IF NOT EXISTS`), очищает таблицы и вставляет данные из JSON методом `executemany()` в порядке `interests → users, routes → recommendations` (из-за внешних ключей), затем `commit()`; при ошибке — `rollback()`. Повторный запуск безопасен.
+
+**SQL-запросы** (`sql/queries.sql`, 17 шт.): списки маршрутов, пользователей, тематик; WHERE — короткие маршруты, поиск по тематике и длине, активные рекомендации; JOIN двух–четырёх таблиц; подзапрос `NOT IN` для подбора; агрегаты `COUNT`, `AVG`, `MIN`, `MAX`, `SUM`; `GROUP BY` по тематикам, маршрутам, пользователям; `HAVING`; `LIMIT`.
+
+**Работа из Django.** `db.database.fetch_all()` открывает соединение через `get_connection()` (с `PRAGMA foreign_keys = ON`), ставит `conn.row_factory = sqlite3.Row` — поля доступны по именам (`{{ route.name }}`), — и передаёт значения только параметрами `?`.
+
+---
 
 ## 🌐 Веб-интерфейс (Django)
 
-| URL | View | Страница |
+| URL | View | Данные (запрос из `queries.sql`) |
 |---|---|---|
-| `/` | `homepage.views.index` | главная, навигация |
-| `/routes/` | `routes.views.routes` | список маршрутов (по длине) |
-| `/routes/<int:route_id>/` | `routes.views.route_detail` | карточка маршрута, 404 если нет |
-| `/recommendations/` | `recommendations.views.recommendations` | список рекомендаций со статусами |
-| `/recommendations/<int:rec_id>/` | `recommendations.views.recommendation_detail` | карточка рекомендации, 404 если нет |
+| `/` | `homepage.views.index` | количество маршрутов и активных рекомендаций (COUNT) |
+| `/routes/` | `routes.views.routes` | список маршрутов с тематикой (1, JOIN) |
+| `/routes/search/?interest=&max_km=` | `routes.views.search` | поиск по тематике и длине (3, 5 — WHERE с параметрами) |
+| `/routes/<int:route_id>/` | `routes.views.route_detail` | карточка маршрута и кому он рекомендован (6, 7); 404 если нет |
+| `/recommendations/` | `recommendations.views.recommendations` | активные рекомендации из трёх таблиц (8, JOIN) |
+| `/recommendations/<int:rec_id>/` | `recommendations.views.recommendation_detail` | рекомендация из четырёх таблиц (9); 404 если нет |
+| `/recommendations/pick/?user=` | `recommendations.views.pick` | подбор маршрутов по интересу пользователя (2, 10 — NOT IN) |
+| `/recommendations/statistics/?min=` | `recommendations.views.statistics` | агрегаты, GROUP BY, HAVING с порогом, топ-3 (11–17) |
 
-Несуществующий адрес обрабатывает `handler404 = "homepage.views.page_not_found"` (виден при `DEBUG = False`).
+Навигация: Главная | Маршруты | Рекомендации | Подбор | Статистика (все ссылки через `{% url %}`). Несуществующий адрес обрабатывает `handler404 = "homepage.views.page_not_found"`.
 
 ### Шаблоны (ПР6)
 
-View-функции только готовят контекст и вызывают `render()`; HTML формируют шаблоны Django:
-
 - `templates/base.html` — каркас страницы, блоки `{% block title %}` и `{% block content %}`; дочерние шаблоны подключают его через `{% extends "base.html" %}`;
 - `{% include %}` — навигация, карточка маршрута `route_card.html`, статус рекомендации `recommendation_status.html`;
-- циклы `{% for %}…{% empty %}`, условия `{% if %}` (найден ли объект, отклонена ли рекомендация, короткий ли маршрут);
-- ссылки только через `{% url 'routes:detail' route.id %}` и пространства имён `app_name`;
+- циклы `{% for %}…{% empty %}`, условия `{% if %}`;
+- ссылки через `{% url 'routes:detail' route.id %}` и пространства имён `app_name`;
 - фильтры `length`, `default`, `capfirst`, `floatformat`;
-- статика `homepage/static/homepage/`: свой `css/style.css`, `js/main.js` (текущий год в подвале), `img/logo.svg`.
+- статика `homepage/static/homepage/`: `css/style.css`, `js/main.js` (текущий год в подвале), `img/logo.svg`.
 
 ## ▶️ Запуск
 
@@ -177,10 +218,13 @@ View-функции только готовят контекст и вызыва
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python manage.py migrate
+python manage.py migrate        # служебные таблицы Django
+python -m db.import_json        # пересоздать data/city_routes.sqlite из JSON (по желанию)
 python manage.py runserver      # веб-версия: http://127.0.0.1:8000/
-python main.py                  # консольная версия
+python main.py                  # консольная версия (работает с JSON)
 ```
+
+Проверка запросов в SQLite CLI: `sqlite3 data/city_routes.sqlite`, затем `.read sql/queries.sql` или отдельные запросы.
 
 ## ✅ Тесты и проверка кода
 
@@ -194,39 +238,26 @@ flake8 . --extend-exclude=venv
 
 ## 🗺️ План дальнейшего развития
 
-### Этап 1. Проектирование
-- [x] Анализ предметной области.
-- [x] Выделение основных сущностей.
-- [x] Анализ требований и план разработки (ПР2).
-- [x] Проектирование ER-диаграммы базы данных (ПР3).
-- [ ] Определение технологического стека.
-
-### Этап 2. Разработка ядра
-- [ ] Реализация CRUD для пользователей, маршрутов и интересов.
-- [ ] Реализация механизма связей между сущностями.
-- [ ] Разработка базового алгоритма рекомендаций (content-based filtering).
-
-### Этап 3. Расширение функционала
-- [ ] Добавление коллаборативной фильтрации.
-- [ ] Интеграция с картографическим сервисом (Leaflet / Google Maps API).
-- [ ] Реализация поиска и фильтрации.
-- [ ] Система оценок и отзывов.
-
-### Этап 4. Завершение
-- [ ] Тестирование и отладка.
-- [ ] Подготовка документации.
-- [ ] Финальная защита проекта.
+- [x] Анализ предметной области и сущностей (ПР1).
+- [x] Коллекции, функции, JSON-хранилище, тесты (ПР2).
+- [x] Объектная модель (ПР3).
+- [x] Django-проект, маршруты и страницы (ПР5).
+- [x] Шаблоны и статические файлы (ПР6).
+- [x] Реляционная база SQLite и SQL-запросы (ПР7).
+- [ ] Django ORM, модели, миграции, админ-зона (ПР8–ПР9).
+- [ ] Формы создания и изменения данных (ПР10).
+- [ ] Регистрация, аутентификация, разграничение доступа (ПР11).
+- [ ] Расширение тестирования (ПР13–ПР15).
+- [ ] Отзывы, избранное, точки маршрута, карта.
 
 ---
 
-## 🛠️ Предполагаемый технологический стек
+## 🛠️ Технологический стек
 
-*   **Backend:** Python (Django / FastAPI)
-*   **База данных:** JSON-файлы (ПР2–ПР6), SQLite (ПР7), далее Django ORM
-*   **Frontend:** React / Vue.js
-*   **Карты:** Leaflet / Google Maps API
-
-> Выбор backend-фреймворка и frontend будет уточнён перед началом разработки.
+*   **Backend:** Python 3, Django 5.2
+*   **База данных:** JSON-файлы (ПР2–ПР6) → SQLite + SQL (ПР7) → Django ORM (далее)
+*   **Frontend:** Django Template Language, HTML, CSS, Bootstrap 5.3, JavaScript
+*   **Качество:** pytest, flake8
 
 ---
 
