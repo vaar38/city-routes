@@ -1,9 +1,10 @@
 [
-    {
-        "id": 1,
-        "route_id": 1,
-        "user_id": 1,
-        "score": 1.0,
-        "is_dismissed": true
-    }
+    {"id": 1, "route_id": 1, "user_id": 1, "score": 1.0, "is_dismissed": true},
+    {"id": 2, "route_id": 1, "user_id": 1, "score": 0.9, "is_dismissed": false},
+    {"id": 3, "route_id": 4, "user_id": 1, "score": 0.7, "is_dismissed": false},
+    {"id": 4, "route_id": 2, "user_id": 2, "score": 1.0, "is_dismissed": false},
+    {"id": 5, "route_id": 5, "user_id": 2, "score": 0.8, "is_dismissed": false},
+    {"id": 6, "route_id": 3, "user_id": 3, "score": 1.0, "is_dismissed": false},
+    {"id": 7, "route_id": 1, "user_id": 4, "score": 0.95, "is_dismissed": false},
+    {"id": 8, "route_id": 4, "user_id": 4, "score": 0.6, "is_dismissed": true}
 ]

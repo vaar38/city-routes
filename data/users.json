@@ -1,14 +1,6 @@
 [
-    {
-        "id": 1,
-        "name": "Артур",
-        "email": "artur@example.com",
-        "interest": "архитектура"
-    },
-    {
-        "id": 2,
-        "name": "Анна",
-        "email": "anna@example.com",
-        "interest": "парки"
-    }
+    {"id": 1, "name": "Артур", "email": "artur@example.com", "interest": "архитектура"},
+    {"id": 2, "name": "Анна", "email": "anna@example.com", "interest": "парки"},
+    {"id": 3, "name": "Мария", "email": "maria@example.com", "interest": "стрит-арт"},
+    {"id": 4, "name": "Игорь", "email": "igor@example.com", "interest": "архитектура"}
 ]

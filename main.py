@@ -1,6 +1,7 @@
 """Точка запуска: консольное меню «Системы рекомендаций городских маршрутов»."""
 
-from recommendations import (
+from models import Recommendation, Route, User
+from models.recommendations import (
     create_recommendation,
     dismiss_recommendation,
     get_recommendation_status,
@@ -8,7 +9,7 @@ from recommendations import (
     recommend_routes,
     show_recommendations,
 )
-from routes import (
+from models.routes import (
     add_route,
     delete_route,
     filter_routes_by_interest,
@@ -26,7 +27,7 @@ from storage import (
     save_routes,
     save_users,
 )
-from users import add_user, change_interest, find_user_by_id, show_users
+from models.users import add_user, change_interest, find_user_by_id, show_users
 from utils import input_float, input_int, input_text
 
 MENU = """
@@ -49,12 +50,12 @@ MENU = """
 0. Выход"""
 
 
-def search_routes(routes: list[dict]) -> None:
+def search_routes(routes: list[Route]) -> None:
     """Сценарий «Поиск маршрута по названию»."""
     show_routes(find_route(routes, input_text("Часть названия: ")))
 
 
-def filter_routes(routes: list[dict]) -> None:
+def filter_routes(routes: list[Route]) -> None:
     """Сценарий «Фильтрация маршрутов по длине и тематике»."""
     max_km = input_float("Максимальная длина, км: ")
     interest = input("Тематика (Enter — любая): ").strip()
@@ -64,7 +65,7 @@ def filter_routes(routes: list[dict]) -> None:
     show_routes(result)
 
 
-def create_new_route(routes: list[dict]) -> None:
+def create_new_route(routes: list[Route]) -> None:
     """Сценарий «Добавление маршрута»."""
     try:
         route = add_route(
@@ -77,10 +78,10 @@ def create_new_route(routes: list[dict]) -> None:
     except ValueError as error:
         print(f"Ошибка: {error}")
         return
-    print(f"Маршрут добавлен, ID = {route['id']}")
+    print(f"Маршрут добавлен, ID = {route.id}")
 
 
-def remove_route(routes: list[dict]) -> None:
+def remove_route(routes: list[Route]) -> None:
     """Сценарий «Удаление маршрута»."""
     if delete_route(routes, input_int("ID маршрута: ")):
         print("Маршрут удалён.")
@@ -88,7 +89,7 @@ def remove_route(routes: list[dict]) -> None:
         print("Маршрут не найден.")
 
 
-def create_new_user(users: list[dict]) -> None:
+def create_new_user(users: list[User]) -> None:
     """Сценарий «Добавление пользователя»."""
     try:
         user = add_user(
@@ -100,10 +101,10 @@ def create_new_user(users: list[dict]) -> None:
     except ValueError as error:
         print(f"Ошибка: {error}")
         return
-    print(f"Пользователь добавлен, ID = {user['id']}")
+    print(f"Пользователь добавлен, ID = {user.id}")
 
 
-def edit_interest(users: list[dict]) -> None:
+def edit_interest(users: list[User]) -> None:
     """Сценарий «Изменение интереса пользователя»."""
     user_id = input_int("ID пользователя: ")
     if change_interest(users, user_id, input_text("Новый интерес: ")):
@@ -112,20 +113,20 @@ def edit_interest(users: list[dict]) -> None:
         print("Пользователь не найден.")
 
 
-def pick_routes(routes: list[dict], users: list[dict]) -> None:
+def pick_routes(routes: list[Route], users: list[User]) -> None:
     """Сценарий «Подбор маршрутов под интерес пользователя»."""
     user = find_user_by_id(users, input_int("ID пользователя: "))
     if user is None:
         print("Пользователь не найден.")
         return
-    print(f"Интерес: {user['interest']}")
+    print(f"Интерес: {user.interest}")
     show_routes(recommend_routes(routes, user))
 
 
 def create_new_recommendation(
-    recommendations: list[dict],
-    routes: list[dict],
-    users: list[dict],
+    recommendations: list[Recommendation],
+    routes: list[Route],
+    users: list[User],
 ) -> None:
     """Сценарий «Рекомендовать маршрут пользователю»."""
     route = find_route_by_id(routes, input_int("ID маршрута: "))
@@ -138,16 +139,16 @@ def create_new_recommendation(
         return
 
     print(get_recommendation_status(
-        is_route_recommended(recommendations, route["id"], user["id"])
+        is_route_recommended(recommendations, route, user)
     ))
     rec = create_recommendation(recommendations, route, user)
     if rec is None:
         print("Рекомендация не создана: интересы не совпадают или она уже активна.")
     else:
-        print(f"Рекомендация создана, ID = {rec['id']}")
+        print(f"Рекомендация создана, ID = {rec.id}")
 
 
-def reject_recommendation(recommendations: list[dict]) -> None:
+def reject_recommendation(recommendations: list[Recommendation]) -> None:
     """Сценарий «Отклонить рекомендацию»."""
     if dismiss_recommendation(recommendations, input_int("ID рекомендации: ")):
         print("Рекомендация отклонена.")
@@ -159,7 +160,7 @@ def main() -> None:
     """Загрузить данные, запустить цикл меню, сохранить данные при выходе."""
     routes = load_routes()
     users = load_users()
-    recommendations = load_recommendations()
+    recommendations = load_recommendations(routes, users)
 
     try:
         while True:
@@ -188,7 +189,7 @@ def main() -> None:
             elif choice == "11":
                 reject_recommendation(recommendations)
             elif choice == "12":
-                show_recommendations(recommendations, routes, users)
+                show_recommendations(recommendations)
             elif choice == "0":
                 break
             else:

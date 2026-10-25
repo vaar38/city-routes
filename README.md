@@ -62,7 +62,6 @@
 *   `Пользователь` **1:N** `Рекомендация`, `Маршрут` **1:N** `Рекомендация` — пользователю рекомендуются маршруты.
 *   `Пользователь` **M:N** `Маршрут` — через `Избранное`.
 
-Подробная схема базы данных — в [отчёте ПР3](docs/pr3/README.md).
 
 ---
 
@@ -88,6 +87,7 @@
 |---|---|---|
 | ПР1 | Основы Python: описание проекта, начальный сценарий | этот README |
 | ПР2 | Коллекции, функции, модули, JSON, исключения, pytest | [docs/pr2/README.md](docs/pr2/README.md) |
+| ПР3 | ООП: классы Route, User, Recommendation, взаимодействие объектов | [docs/pr3/README.md](docs/pr3/README.md) |
 
 ---
 
@@ -99,10 +99,12 @@ city-routes/
 ├── requirements.txt       — pytest, flake8
 ├── .flake8                — настройки линтера
 ├── main.py                — точка запуска, меню и пользовательские сценарии
-├── routes.py              — работа с маршрутами
-├── users.py               — работа с пользователями
-├── recommendations.py     — подбор и рекомендации маршрутов
-├── storage.py             — загрузка и сохранение JSON
+├── models/                — объектная модель (ПР3)
+│   ├── __init__.py        — экспорт классов Route, User, Recommendation
+│   ├── routes.py          — класс Route и функции работы с маршрутами
+│   ├── users.py           — класс User и функции работы с пользователями
+│   └── recommendations.py — класс Recommendation, подбор и рекомендации
+├── storage.py             — JSON ↔ объекты (загрузка и сохранение)
 ├── utils.py               — безопасный ввод чисел и строк
 ├── data/
 │   ├── routes.json
@@ -110,6 +112,16 @@ city-routes/
 │   └── recommendations.json
 └── tests/                 — автотесты pytest
 ```
+
+### Объектная модель
+
+| Класс | Атрибуты | Методы |
+|---|---|---|
+| `Route` | `id`, `name`, `interest`, `length_km`, `points_count` | `is_suitable_for()`, `has_interest()`, `info` (`@property`), `validate_length()` (`@staticmethod`), `from_data()` (`@classmethod`), `__str__()` |
+| `User` | `id`, `name`, `email`, `interest` | `change_interest()`, `from_data()` (`@classmethod`), `__str__()` |
+| `Recommendation` | `id`, `route: Route`, `user: User`, `score`, `is_dismissed` | `dismiss()`, `is_active` (`@property`), `__str__()` |
+
+`Recommendation` хранит ссылки на объекты `Route` и `User` (композиция), поэтому имя пользователя и название маршрута доступны как `rec.user.name`, `rec.route.name`. В JSON вместо объектов записываются `route_id` и `user_id`; связи восстанавливает `storage.load_recommendations()`.
 
 ### Формат данных
 
@@ -172,7 +184,7 @@ flake8
 ## 🛠️ Предполагаемый технологический стек
 
 *   **Backend:** Python (Django / FastAPI)
-*   **База данных:** PostgreSQL (схема — [docs/pr3/schema.sql](docs/pr3/schema.sql))
+*   **База данных:** JSON-файлы (ПР2–ПР6), SQLite (ПР7), далее Django ORM
 *   **Frontend:** React / Vue.js
 *   **Карты:** Leaflet / Google Maps API
 
