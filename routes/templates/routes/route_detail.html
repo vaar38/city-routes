@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if route %}{{ route.name }} – City Routes{% else %}Маршрут не найден – City Routes{% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if route %}
+        <div class="card route-card">
+            <div class="card-body">
+                <h1 class="card-title">{{ route.name }}</h1>
+                <p class="card-text"><strong>ID:</strong> {{ route.id }}</p>
+                <p class="card-text"><strong>Тематика:</strong> {{ route.interest|capfirst }}</p>
+                <p class="card-text"><strong>Протяжённость:</strong> {{ route.length_km|floatformat:1 }} км</p>
+                <p class="card-text"><strong>Точек:</strong> {{ route.points_count }}</p>
+                <p class="card-text">
+                    {% if is_short %}
+                        <span class="badge bg-success walk-badge">короткая прогулка</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark walk-badge">длинная прогулка</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <h1 class="text-danger">Маршрут не найден</h1>
+        <p>Маршрута с указанным идентификатором нет.</p>
+    {% endif %}
+
+    <a href="{% url 'routes:list' %}" class="btn btn-outline-secondary mt-3">← к списку маршрутов</a>
+{% endblock %}

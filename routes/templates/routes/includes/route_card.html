@@ -1,0 +1,10 @@
+<article class="card route-card mb-3">
+    <div class="card-body">
+        <h2 class="card-title h4">{{ route.name|default:"Без названия" }}</h2>
+        <p class="card-text">
+            <span class="interest-tag">{{ route.interest|capfirst }}</span>
+            {{ route.length_km|floatformat:1 }} км · точек: {{ route.points_count }}
+        </p>
+        <a href="{% url 'routes:detail' route.id %}" class="btn btn-primary">Подробнее</a>
+    </div>
+</article>

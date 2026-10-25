@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Маршруты – City Routes{% endblock %}
+
+{% block content %}
+    <h1>Маршруты</h1>
+    <p>Всего маршрутов: {{ routes|length }}</p>
+
+    {% for route in routes %}
+        {% include "routes/includes/route_card.html" %}
+    {% empty %}
+        <p>Маршруты не найдены.</p>
+    {% endfor %}
+{% endblock %}

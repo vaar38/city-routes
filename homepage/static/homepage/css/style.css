@@ -1,0 +1,57 @@
+:root {
+    --route-accent: #2f7d6d;
+    --route-accent-soft: #e6f2ef;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main.container {
+    flex: 1;
+    padding-top: 1.5rem;
+}
+
+.site-header {
+    background: var(--route-accent-soft);
+    border-bottom: 2px solid var(--route-accent);
+    padding: 0.5rem 0;
+}
+
+.site-logo {
+    width: 48px;
+    height: 48px;
+}
+
+.site-nav .nav-link {
+    color: var(--route-accent);
+    font-weight: 600;
+}
+
+.route-card {
+    border-left: 4px solid var(--route-accent);
+    border-radius: 8px;
+}
+
+.interest-tag {
+    display: inline-block;
+    margin-right: 0.5rem;
+    padding: 0.1rem 0.6rem;
+    border-radius: 1rem;
+    background: var(--route-accent-soft);
+    color: var(--route-accent);
+    font-size: 0.875rem;
+}
+
+.rec-status,
+.walk-badge {
+    font-weight: 600;
+}
+
+.site-footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    color: #6c757d;
+}

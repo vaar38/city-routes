@@ -90,6 +90,7 @@
 | ПР3 | ООП: классы Route, User, Recommendation, взаимодействие объектов | [docs/pr3/README.md](docs/pr3/README.md) |
 | ПР4 | Контрольная работа № 1 (проект не изменяется) | — |
 | ПР5 | Django: проект, приложения, HTTP, URL, view-функции, Bootstrap | [docs/pr5/README.md](docs/pr5/README.md) |
+| ПР6 | Шаблоны Django, наследование, include, url, фильтры, static | [docs/pr6/README.md](docs/pr6/README.md) |
 
 ---
 
@@ -103,9 +104,13 @@ city-routes/
 ├── manage.py              — управление Django-проектом
 ├── main.py                — консольная версия (ПР1–ПР3), сохранена
 ├── city_routes/           — настройки Django: settings.py, корневой urls.py
-├── homepage/              — главная страница, handler404
-├── routes/                — страницы маршрутов: /routes/, /routes/<id>/
-├── recommendations/       — страницы рекомендаций: /recommendations/, /recommendations/<id>/
+├── templates/             — шаблоны уровня проекта
+│   ├── base.html          — общий каркас: блоки title/content, CSS, JS, подвал
+│   └── includes/navigation.html
+├── homepage/              — главная, страница 404, static/homepage/{css,js,img}
+├── routes/                — /routes/, /routes/<id>/; templates/routes/ (+ includes/route_card.html)
+├── recommendations/       — /recommendations/, /recommendations/<id>/;
+│                            templates/recommendations/ (+ includes/recommendation_status.html)
 ├── models/                — объектная модель (ПР3)
 │   ├── __init__.py        — экспорт классов Route, User, Recommendation
 │   ├── routes.py          — класс Route и функции работы с маршрутами
@@ -154,6 +159,17 @@ city-routes/
 | `/recommendations/<int:rec_id>/` | `recommendations.views.recommendation_detail` | карточка рекомендации, 404 если нет |
 
 Несуществующий адрес обрабатывает `handler404 = "homepage.views.page_not_found"` (виден при `DEBUG = False`).
+
+### Шаблоны (ПР6)
+
+View-функции только готовят контекст и вызывают `render()`; HTML формируют шаблоны Django:
+
+- `templates/base.html` — каркас страницы, блоки `{% block title %}` и `{% block content %}`; дочерние шаблоны подключают его через `{% extends "base.html" %}`;
+- `{% include %}` — навигация, карточка маршрута `route_card.html`, статус рекомендации `recommendation_status.html`;
+- циклы `{% for %}…{% empty %}`, условия `{% if %}` (найден ли объект, отклонена ли рекомендация, короткий ли маршрут);
+- ссылки только через `{% url 'routes:detail' route.id %}` и пространства имён `app_name`;
+- фильтры `length`, `default`, `capfirst`, `floatformat`;
+- статика `homepage/static/homepage/`: свой `css/style.css`, `js/main.js` (текущий год в подвале), `img/logo.svg`.
 
 ## ▶️ Запуск
 

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if rec %}Рекомендация №{{ rec.id }} – City Routes{% else %}Рекомендация не найдена – City Routes{% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if rec %}
+        <div class="card route-card">
+            <div class="card-body">
+                <h1 class="card-title">Рекомендация №{{ rec.id }}</h1>
+                <p class="card-text"><strong>Пользователь:</strong> {{ rec.user.name }} ({{ rec.user.email }})</p>
+                <p class="card-text">
+                    <strong>Маршрут:</strong>
+                    <a href="{% url 'routes:detail' rec.route.id %}">{{ rec.route.name }}</a>,
+                    {{ rec.route.length_km|floatformat:1 }} км
+                </p>
+                <p class="card-text"><strong>Релевантность:</strong> {{ rec.score|floatformat:2 }}</p>
+                <p class="card-text">
+                    <strong>Статус:</strong>
+                    {% include "recommendations/includes/recommendation_status.html" %}
+                </p>
+            </div>
+        </div>
+    {% else %}
+        <h1 class="text-danger">Рекомендация не найдена</h1>
+        <p>Рекомендации с указанным идентификатором нет.</p>
+    {% endif %}
+
+    <a href="{% url 'recommendations:list' %}" class="btn btn-outline-secondary mt-3">
+        ← к списку рекомендаций
+    </a>
+{% endblock %}

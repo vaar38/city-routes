@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Рекомендации – City Routes{% endblock %}
+
+{% block content %}
+    <h1>Рекомендации</h1>
+    <p>Всего рекомендаций: {{ recommendations|length }}</p>
+
+    <ul class="list-group">
+        {% for rec in recommendations %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a href="{% url 'recommendations:detail' rec.id %}">
+                    {{ rec.user.name }} → {{ rec.route.name }}
+                </a>
+                {% include "recommendations/includes/recommendation_status.html" %}
+            </li>
+        {% empty %}
+            <li class="list-group-item">Рекомендаций нет.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
