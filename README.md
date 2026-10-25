@@ -88,6 +88,8 @@
 | ПР1 | Основы Python: описание проекта, начальный сценарий | этот README |
 | ПР2 | Коллекции, функции, модули, JSON, исключения, pytest | [docs/pr2/README.md](docs/pr2/README.md) |
 | ПР3 | ООП: классы Route, User, Recommendation, взаимодействие объектов | [docs/pr3/README.md](docs/pr3/README.md) |
+| ПР4 | Контрольная работа № 1 (проект не изменяется) | — |
+| ПР5 | Django: проект, приложения, HTTP, URL, view-функции, Bootstrap | [docs/pr5/README.md](docs/pr5/README.md) |
 
 ---
 
@@ -96,9 +98,14 @@
 ```text
 city-routes/
 ├── README.md
-├── requirements.txt       — pytest, flake8
+├── requirements.txt       — Django 5.2, pytest, flake8
 ├── .flake8                — настройки линтера
-├── main.py                — точка запуска, меню и пользовательские сценарии
+├── manage.py              — управление Django-проектом
+├── main.py                — консольная версия (ПР1–ПР3), сохранена
+├── city_routes/           — настройки Django: settings.py, корневой urls.py
+├── homepage/              — главная страница, handler404
+├── routes/                — страницы маршрутов: /routes/, /routes/<id>/
+├── recommendations/       — страницы рекомендаций: /recommendations/, /recommendations/<id>/
 ├── models/                — объектная модель (ПР3)
 │   ├── __init__.py        — экспорт классов Route, User, Recommendation
 │   ├── routes.py          — класс Route и функции работы с маршрутами
@@ -136,20 +143,35 @@ city-routes/
 
 Правило: у пользователя не может быть двух **активных** рекомендаций одного маршрута; отклонённая рекомендация остаётся в файле, но не мешает создать новую.
 
+## 🌐 Веб-интерфейс (Django)
+
+| URL | View | Страница |
+|---|---|---|
+| `/` | `homepage.views.index` | главная, навигация |
+| `/routes/` | `routes.views.routes` | список маршрутов (по длине) |
+| `/routes/<int:route_id>/` | `routes.views.route_detail` | карточка маршрута, 404 если нет |
+| `/recommendations/` | `recommendations.views.recommendations` | список рекомендаций со статусами |
+| `/recommendations/<int:rec_id>/` | `recommendations.views.recommendation_detail` | карточка рекомендации, 404 если нет |
+
+Несуществующий адрес обрабатывает `handler404 = "homepage.views.page_not_found"` (виден при `DEBUG = False`).
+
 ## ▶️ Запуск
 
 ```text
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-python main.py
+python manage.py migrate
+python manage.py runserver      # веб-версия: http://127.0.0.1:8000/
+python main.py                  # консольная версия
 ```
 
 ## ✅ Тесты и проверка кода
 
 ```text
+python manage.py check
 pytest -v
-flake8
+flake8 . --extend-exclude=venv
 ```
 
 ---

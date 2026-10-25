@@ -82,6 +82,17 @@ def create_recommendation(
     return rec
 
 
+def find_recommendation_by_id(
+    recommendations: list[Recommendation],
+    rec_id: int,
+) -> Recommendation | None:
+    """Найти рекомендацию по идентификатору (используется веб-страницей)."""
+    for rec in recommendations:
+        if rec.id == rec_id:
+            return rec
+    return None
+
+
 def dismiss_recommendation(recommendations: list[Recommendation], rec_id: int) -> bool:
     """Найти активную рекомендацию и вызвать её метод dismiss()."""
     for rec in recommendations:
