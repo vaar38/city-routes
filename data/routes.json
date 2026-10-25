@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "name": "Исторический центр",
+        "interest": "архитектура",
+        "length_km": 4.5,
+        "points_count": 6
+    },
+    {
+        "id": 2,
+        "name": "Парки Замоскворечья",
+        "interest": "парки",
+        "length_km": 3.0,
+        "points_count": 4
+    },
+    {
+        "id": 3,
+        "name": "Стрит-арт Винзавода",
+        "interest": "стрит-арт",
+        "length_km": 2.2,
+        "points_count": 5
+    },
+    {
+        "id": 4,
+        "name": "Сталинские высотки",
+        "interest": "архитектура",
+        "length_km": 9.8,
+        "points_count": 7
+    },
+    {
+        "id": 5,
+        "name": "Новый",
+        "interest": "прогулка по парку",
+        "length_km": 4.0,
+        "points_count": 10
+    }
+]

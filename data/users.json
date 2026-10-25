@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "name": "Артур",
+        "email": "artur@example.com",
+        "interest": "архитектура"
+    },
+    {
+        "id": 2,
+        "name": "Анна",
+        "email": "anna@example.com",
+        "interest": "парки"
+    }
+]
